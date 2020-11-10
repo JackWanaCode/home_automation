@@ -156,9 +156,9 @@ def ac():
                     "error": "Couldn't find payload in request"
                 }
                 return make_response(jsonify(data), 400)
-            power = data['power']
+            power = True
             temp = data['temp']
-            new_ac = AirC(power=True, temp=temp)
+            new_ac = AirC(power=power, temp=temp)
             new_ac.add()
             logging.info("Adding new Air Conditioner. AC id: %s", new_ac.id)
             data = {

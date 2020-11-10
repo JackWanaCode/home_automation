@@ -22,7 +22,7 @@ def get_temperature():
     :return:
     """
     num = random.randint(0, 100)
-    return {"power": True, "temp": num}
+    return {"temp": num}
 
 
 def light_controller():
@@ -62,28 +62,31 @@ def temp_controller():
     else return {'power': Boolean, 'temp': int}
     """
     temp_control = get_temperature()
-    power = temp_control['power']
     temp = temp_control['temp']
     get_temp = requests.get('http://127.0.0.1:5000/ac')
     if get_temp.status_code != 200:
-        body = get_temp.json()
         logging.error("The get request is not completed.")
         return None
     else:
         body = get_temp.json()
-        if power == body['power'] and temp == body['temp']:
-            logging.info("The AC reflect current environment. It doesn't need to change")
-            return None
-        else:
-            data = {'power': power, 'temp': temp}
+        if temp == body['temp']:
+            data = {'power': False, "temp": body['temp']}
             resp = requests.put('http://127.0.0.1:5000/ac', json=data)
             if resp.status_code != 201:
                 logging.error("The put request is not completed.")
                 return None
             else:
-                logging.info("AC is updated as power %s, temp %s", power, temp)
+                logging.info("AC is updated as power off")
                 return data
-
+        else:
+            data = {'power': True, "temp": body['temp']}
+            resp = requests.put('http://127.0.0.1:5000/ac', json=data)
+            if resp.status_code != 201:
+                logging.error("The put request is not completed.")
+                return None
+            else:
+                logging.info("AC is updated as power on at temp %s", body['temp'])
+                return data
 
 
 if __name__ == "__main__":
